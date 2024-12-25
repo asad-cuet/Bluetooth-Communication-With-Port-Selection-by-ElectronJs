@@ -42,6 +42,17 @@ app.on('ready', () => {
     parser.on('data', data => {
       mainWindow.webContents.send('bluetooth-data', data);
     });
+
+
+    ipcMain.on('send-data', (event, message) => {
+      port.write(`${message}\n`, (err) => {
+        if (err) {
+          console.error('Error sending data:', err.message);
+        } else {
+          console.log('Sent:', message);
+        }
+      });
+    });
   });
 
 
@@ -71,13 +82,5 @@ app.on('ready', () => {
 
   
 
-  ipcMain.on('send-data', (event, message) => {
-    port.write(`${message}\n`, (err) => {
-      if (err) {
-        console.error('Error sending data:', err.message);
-      } else {
-        console.log('Sent:', message);
-      }
-    });
-  });
+  
 });
