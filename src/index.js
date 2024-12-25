@@ -32,12 +32,13 @@ app.on('ready', () => {
     console.log('Serial port opened');
     mainWindow.webContents.send('bluetooth-status', { connected: true, deviceName: port.path });
     console.log('Serial port end');
-
   });
 
   parser.on('data', (data) => {
     console.log('Received:', data);
     mainWindow.webContents.send('bluetooth-data', data);
+    mainWindow.webContents.send('bluetooth-status', { connected: true, deviceName: port.path });
+
   });
 
   port.on('error', (err) => {

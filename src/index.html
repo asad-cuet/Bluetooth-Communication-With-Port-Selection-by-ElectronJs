@@ -9,13 +9,14 @@
     href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
     rel="stylesheet"
   />
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
   <div class="container mt-5">
     <h1 class="text-center">Bluetooth Connection Status</h1>
     <div id="status-card" class="card text-center mt-3">
       <div class="card-body">
-        <h5 id="connection-status" class="card-title text-danger">
+        <h5 id="connection_status" class="card-title text-danger">
           Not Connected
         </h5>
       </div>
@@ -40,16 +41,16 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script>
     // Update Bluetooth status
-    window.electronAPI.onBluetoothStatus((status) => {
-      console.log('onBluetoothStatus status', status);
-      const statusElement = document.getElementById('connection-status');
-      if (status.connected) {
-        statusElement.textContent = `Connected to: ${status.deviceName}`;
-        statusElement.className = 'card-title text-success';
-      } else {
-        statusElement.textContent = 'Not Connected';
-        statusElement.className = 'card-title text-danger';
+    window.electronAPI.onBluetoothStatus((data) => {
+      console.log('onBluetoothStatus status', data);
+      if (data.connected) 
+      {
+        console.log('in', data);
+        $('#connection_status').html(`Connected to: ${data.deviceName}`);
+        $('#connection_status').removeClass('card-title text-danger');
+        $('#connection_status').addClass('card-title text-success');
       }
+
     });
 
     // Display received data
