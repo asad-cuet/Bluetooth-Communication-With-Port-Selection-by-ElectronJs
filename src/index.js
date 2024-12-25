@@ -17,7 +17,7 @@ app.on('ready', () => {
   mainWindow.loadFile(path.join(__dirname, 'index.html'));
 
   // Open DevTools (optional)
-  mainWindow.webContents.openDevTools();
+  // mainWindow.webContents.openDevTools();
 
   // Initialize SerialPort
   const port = new SerialPort({
