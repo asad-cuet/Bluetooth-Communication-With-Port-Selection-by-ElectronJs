@@ -8,4 +8,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
     ipcRenderer.on('bluetooth-data', (event, data) => callback(data));
   },
   sendData: (message) => ipcRenderer.send('send-data', message),
+  getAvailablePorts: () => ipcRenderer.invoke('get-available-ports'),
+  connectToPort: (portPath) => ipcRenderer.send('connect-to-port', portPath),
 });
