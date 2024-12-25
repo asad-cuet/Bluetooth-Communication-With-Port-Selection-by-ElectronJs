@@ -26,6 +26,22 @@ app.on('ready', () => {
     return ports.map(port => port.path);    // Only return the port paths
   });
 
+
+  // SerialPort.list().then((ports) => {
+  //   console.log('Found ports',ports);
+  //   ports.forEach((port) => {
+  //     if (port.manufacturer && port.manufacturer.includes('Bluetooth')) {
+  //       console.log(`Found Bluetooth device on port: ${port.comName}`);
+  //       // Now you can connect to this port
+  //       const bluetoothPort = new SerialPort({ path: port.comName, baudRate: 9600 });
+  //       bluetoothPort.on('open', () => {
+  //         console.log('Serial port opened');
+  //       });
+  //     }
+  //   });
+  // });
+  
+
   // Handle connection to selected port
   ipcMain.on('connect-to-port', (event, portPath) => {
     const port = new SerialPort({ path: portPath, baudRate: 9600 });
