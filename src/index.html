@@ -1,12 +1,74 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="UTF-8" />
-    <title>Hello World!</title>
-    <link rel="stylesheet" href="index.css" />
-  </head>
-  <body>
-    <h1>💖 Hello World!</h1>
-    <p>Welcome to your Electron application.</p>
-  </body>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bluetooth Status</title>
+  <!-- Bootstrap CSS -->
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  />
+</head>
+<body>
+  <div class="container mt-5">
+    <h1 class="text-center">Bluetooth Connection Status</h1>
+    <div id="status-card" class="card text-center mt-3">
+      <div class="card-body">
+        <h5 id="connection-status" class="card-title text-danger">
+          Not Connected
+        </h5>
+      </div>
+    </div>
+    <div id="received-data" class="mt-4">
+      <h4>Received Data:</h4>
+      <pre id="data-output" class="bg-light p-3"></pre>
+    </div>
+    <div class="text-center mt-4">
+      <input
+        id="message-input"
+        class="form-control mb-3"
+        placeholder="Enter message to send"
+      />
+      <button id="send-button" class="btn btn-primary">Send Data</button>
+      <!-- Clear Button -->
+      <button id="clear-button" class="btn btn-secondary ml-3">Clear</button>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS Bundle -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Update Bluetooth status
+    window.electronAPI.onBluetoothStatus((status) => {
+      console.log('onBluetoothStatus status', status);
+      const statusElement = document.getElementById('connection-status');
+      if (status.connected) {
+        statusElement.textContent = `Connected to: ${status.deviceName}`;
+        statusElement.className = 'card-title text-success';
+      } else {
+        statusElement.textContent = 'Not Connected';
+        statusElement.className = 'card-title text-danger';
+      }
+    });
+
+    // Display received data
+    window.electronAPI.onBluetoothData((data) => {
+      const dataOutput = document.getElementById('data-output');
+      dataOutput.textContent += `${data}\n`;
+    });
+
+    // Send data to the Bluetooth device
+    document.getElementById('send-button').addEventListener('click', () => {
+      const message = document.getElementById('message-input').value;
+      window.electronAPI.sendData(message);
+    });
+
+    // Clear received data
+    document.getElementById('clear-button').addEventListener('click', () => {
+      const dataOutput = document.getElementById('data-output');
+      dataOutput.textContent = '';  // Clear the content
+    });
+  </script>
+</body>
 </html>

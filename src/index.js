@@ -1,15 +1,12 @@
-import { app, BrowserWindow } from 'electron';
-import path from 'node:path';
-import started from 'electron-squirrel-startup';
+const { app, BrowserWindow, ipcMain } = require('electron');
+const { SerialPort, ReadlineParser } = require('serialport');
+const path = require('path');
 
-// Handle creating/removing shortcuts on Windows when installing/uninstalling.
-if (started) {
-  app.quit();
-}
+let mainWindow;
 
-const createWindow = () => {
-  // Create the browser window.
-  const mainWindow = new BrowserWindow({
+// Create the main window
+app.on('ready', () => {
+  mainWindow = new BrowserWindow({
     width: 800,
     height: 600,
     webPreferences: {
@@ -17,36 +14,44 @@ const createWindow = () => {
     },
   });
 
-  // and load the index.html of the app.
   mainWindow.loadFile(path.join(__dirname, 'index.html'));
 
-  // Open the DevTools.
+  // Open DevTools (optional)
   mainWindow.webContents.openDevTools();
-};
 
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
-// Some APIs can only be used after this event occurs.
-app.whenReady().then(() => {
-  createWindow();
+  // Initialize SerialPort
+  const port = new SerialPort({
+    path: 'COM15', // Replace with your port
+    baudRate: 9600,
+  });
 
-  // On OS X it's common to re-create a window in the app when the
-  // dock icon is clicked and there are no other windows open.
-  app.on('activate', () => {
-    if (BrowserWindow.getAllWindows().length === 0) {
-      createWindow();
-    }
+  const parser = port.pipe(new ReadlineParser({ delimiter: '\n' }));
+
+  // Serial port events
+  port.on('open', () => {
+    console.log('Serial port opened');
+    mainWindow.webContents.send('bluetooth-status', { connected: true, deviceName: port.path });
+    console.log('Serial port end');
+
+  });
+
+  parser.on('data', (data) => {
+    console.log('Received:', data);
+    mainWindow.webContents.send('bluetooth-data', data);
+  });
+
+  port.on('error', (err) => {
+    console.error('Serial port error:', err.message);
+    mainWindow.webContents.send('bluetooth-status', { connected: false });
+  });
+
+  ipcMain.on('send-data', (event, message) => {
+    port.write(`${message}\n`, (err) => {
+      if (err) {
+        console.error('Error sending data:', err.message);
+      } else {
+        console.log('Sent:', message);
+      }
+    });
   });
 });
-
-// Quit when all windows are closed, except on macOS. There, it's common
-// for applications and their menu bar to stay active until the user quits
-// explicitly with Cmd + Q.
-app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
-    app.quit();
-  }
-});
-
-// In this file you can include the rest of your app's specific main process
-// code. You can also put them in separate files and import them here.
