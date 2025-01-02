@@ -13,35 +13,39 @@
 <body>
   <div class="container mt-5">
     <!-- Header -->
-    <div class="text-center mb-4">
+    <div class="text-center mb-2">
       <h1 class="fw-bold text-primary">Serial Monitor</h1>
       <p class="text-muted">Monitor and manage your serial connections seamlessly</p>
     </div>
 
-    <!-- Port Selection -->
-    <div class="card shadow-sm mb-4">
-      <div class="card-body text-center">
-        <h5 class="card-title mb-3">Connect to a Serial Port</h5>
-        <div class="d-flex justify-content-center align-items-center gap-3">
-          <select id="port-select" class="form-select w-50">
-            <option disabled selected>Select a port</option>
-          </select>
-          <button id="connect-button" class="btn btn-primary">
-            <i class="bi bi-plug"></i> Connect
-          </button>
+    <!-- Port Selection and Connection Status -->
+    <div class="card shadow-sm mb-2">
+      <div class="card-body">
+        <div class="row align-items-center">
+          <!-- Left: Connect to Serial Port -->
+          <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
+            <h5 class="card-title mb-3">Connect to a Serial Port</h5>
+            <div class="d-flex align-items-center gap-3">
+              <select id="port-select" class="form-select">
+                <option disabled selected>Select a port</option>
+              </select>
+              <button id="connect-button" class="btn btn-primary">
+                <i class="bi bi-plug"></i> Connect
+              </button>
+            </div>
+          </div>
+
+          <!-- Right: Connection Status -->
+          <div class="col-md-6 text-center text-md-end">
+            <h5 class="card-title">Connection Status:</h5>
+            <h5 id="connection_status" class="text-danger">Not Connected</h5>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- Connection Status -->
-    <div class="card shadow-sm text-center mb-4">
-      <div class="card-body">
-        <h5 id="connection_status" class="card-title text-danger">Not Connected</h5>
-      </div>
-    </div>
-
     <!-- Received Data -->
-    <div class="card shadow-sm mb-4">
+    <div class="card shadow-sm mb-2">
       <div class="card-body">
         <h5 class="card-title">Received Data</h5>
         <pre id="data-output" class="bg-light p-3 rounded" style="height: 200px; overflow-y: auto;"></pre>
@@ -96,7 +100,6 @@
       });
 
       window.electronAPI.onBluetoothStatus((data) => {
-        console.log("onBluetoothStatus status", data);
         if (data.connected) {
           $("#connection_status").html(`Connected to: ${data.deviceName}`);
           $("#connection_status").removeClass("text-danger").addClass("text-success");
