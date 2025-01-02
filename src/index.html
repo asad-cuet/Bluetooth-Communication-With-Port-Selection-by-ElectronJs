@@ -12,104 +12,117 @@
 </head>
 <body>
   <div class="container mt-5">
-    <h1 class="text-center">Serial Port Connection Status</h1>
-
-     
-    <div class="text-center mt-4">
-      <label for="port-select">Select Port:</label>
-      <select id="port-select" class="form-select">
-      </select>
-      <button id="connect-button" class="btn btn-primary mt-3">Connect</button>
+    <!-- Header -->
+    <div class="text-center mb-4">
+      <h1 class="fw-bold text-primary">Serial Monitor</h1>
+      <p class="text-muted">Monitor and manage your serial connections seamlessly</p>
     </div>
 
-
-
-    <div id="status-card" class="card text-center mt-3">
-      <div class="card-body">
-        <h5 id="connection_status" class="card-title text-danger">
-          Not Connected
-        </h5>
+    <!-- Port Selection -->
+    <div class="card shadow-sm mb-4">
+      <div class="card-body text-center">
+        <h5 class="card-title mb-3">Connect to a Serial Port</h5>
+        <div class="d-flex justify-content-center align-items-center gap-3">
+          <select id="port-select" class="form-select w-50">
+            <option disabled selected>Select a port</option>
+          </select>
+          <button id="connect-button" class="btn btn-primary">
+            <i class="bi bi-plug"></i> Connect
+          </button>
+        </div>
       </div>
     </div>
-    <div id="received-data" class="mt-4">
-      <h4>Received Data:</h4>
-      <pre id="data-output" class="bg-light p-3"></pre>
-    </div>
-    <div class="text-center mt-4">
-      <input
-        id="message-input"
-        class="form-control mb-3"
-        placeholder="Enter message to send"
-      />
-      <button id="send-button" class="btn btn-primary">Send Data</button>
 
-      <button id="clear-button" class="btn btn-secondary ml-3">Clear</button>
+    <!-- Connection Status -->
+    <div class="card shadow-sm text-center mb-4">
+      <div class="card-body">
+        <h5 id="connection_status" class="card-title text-danger">Not Connected</h5>
+      </div>
+    </div>
+
+    <!-- Received Data -->
+    <div class="card shadow-sm mb-4">
+      <div class="card-body">
+        <h5 class="card-title">Received Data</h5>
+        <pre id="data-output" class="bg-light p-3 rounded" style="height: 50px; overflow-y: auto;"></pre>
+      </div>
+    </div>
+
+    <!-- Send Data -->
+    <div class="card shadow-sm">
+      <div class="card-body text-center">
+        <h5 class="card-title mb-3">Send Data</h5>
+        <input
+          id="message-input"
+          class="form-control mb-3"
+          placeholder="Enter message to send"
+        />
+        <div class="d-flex justify-content-center gap-3">
+          <button id="send-button" class="btn btn-primary">
+            <i class="bi bi-send"></i> Send Data
+          </button>
+          <button id="clear-button" class="btn btn-secondary">
+            <i class="bi bi-eraser"></i> Clear
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 
-
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+  ></script>
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const portSelectElement = document.getElementById('port-select');
-        const connectButton = document.getElementById('connect-button');
+    document.addEventListener("DOMContentLoaded", () => {
+      const portSelectElement = document.getElementById("port-select");
+      const connectButton = document.getElementById("connect-button");
 
-        window.electronAPI.getAvailablePorts().then((ports) => {
-          ports.forEach(port => {
-            const option = document.createElement('option');
-            option.value = port;
-            option.textContent = port;
-            portSelectElement.appendChild(option);
-          });
-        });
-
-
-        connectButton.addEventListener('click', () => {
-          const selectedPort = portSelectElement.value;
-          if (selectedPort) {
-            $('#connect-button').prop('disabled', true);
-            $('#connect-button').html('Loading...');
-            window.electronAPI.connectToPort(selectedPort);  
-          }
-        });
-
-
-        window.electronAPI.onBluetoothStatus((data) => {
-          console.log('onBluetoothStatus status', data);
-          if (data.connected) 
-          {
-            $('#connection_status').html(`Connected to: ${data.deviceName}`);
-            $('#connection_status').removeClass('card-title text-danger');
-            $('#connection_status').addClass('card-title text-success');
-          }
-          else
-          {
-            $('#connection_status').html(`Port Error: ${data.message}`);
-          }
-
-
-          $('#connect-button').prop('disabled', false);
-          $('#connect-button').html('Connect');
-
-        });
-
-
-        window.electronAPI.onBluetoothData((data) => {
-          const dataOutput = document.getElementById('data-output');
-          dataOutput.textContent += `${data}\n`;
-        });
-
-
-        document.getElementById('send-button').addEventListener('click', () => {
-          const message = document.getElementById('message-input').value;
-          window.electronAPI.sendData(message);
-        });
-
-        document.getElementById('clear-button').addEventListener('click', () => {
-          const dataOutput = document.getElementById('data-output');
-          dataOutput.textContent = '';  // Clear the content
+      window.electronAPI.getAvailablePorts().then((ports) => {
+        ports.forEach((port) => {
+          const option = document.createElement("option");
+          option.value = port;
+          option.textContent = port;
+          portSelectElement.appendChild(option);
         });
       });
+
+      connectButton.addEventListener("click", () => {
+        const selectedPort = portSelectElement.value;
+        if (selectedPort) {
+          $("#connect-button").prop("disabled", true);
+          $("#connect-button").html('<span class="spinner-border spinner-border-sm"></span> Connecting...');
+          window.electronAPI.connectToPort(selectedPort);
+        }
+      });
+
+      window.electronAPI.onBluetoothStatus((data) => {
+        console.log("onBluetoothStatus status", data);
+        if (data.connected) {
+          $("#connection_status").html(`Connected to: ${data.deviceName}`);
+          $("#connection_status").removeClass("text-danger").addClass("text-success");
+        } else {
+          $("#connection_status").html(`Port Error: ${data.message}`);
+        }
+
+        $("#connect-button").prop("disabled", false);
+        $("#connect-button").html('<i class="bi bi-plug"></i> Connect');
+      });
+
+      window.electronAPI.onBluetoothData((data) => {
+        const dataOutput = document.getElementById("data-output");
+        dataOutput.textContent += `${data}\n`;
+      });
+
+      document.getElementById("send-button").addEventListener("click", () => {
+        const message = document.getElementById("message-input").value;
+        window.electronAPI.sendData(message);
+      });
+
+      document.getElementById("clear-button").addEventListener("click", () => {
+        const dataOutput = document.getElementById("data-output");
+        dataOutput.textContent = ""; // Clear the content
+      });
+    });
   </script>
 </body>
 </html>
